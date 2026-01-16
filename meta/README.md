@@ -6,6 +6,7 @@ Contains MissionControl's own governance: conventions, linking rules, and reposi
 ## What Belongs Here
 - `conventions.md` – Naming, formatting, and structural conventions
 - `linking-rules.md` – Cross-reference and linking standards
+- `planning/` – Strategic planning documents for harmonization initiative
 - Repository-level configuration and standards
 
 ## What Does NOT Belong Here
