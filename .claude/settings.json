@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/tmac/1_REPOS/credentialmate log --oneline --ancestry-path 9b3ee81d..HEAD)",
+      "Bash(git -C /Users/tmac/1_REPOS/credentialmate__autonomy status --porcelain)"
+    ]
+  },
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/tmac/1_REPOS/MissionControl/.claude/hooks/save-session-notes.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

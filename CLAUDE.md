@@ -164,6 +164,35 @@ Same as app repos:
 
 ---
 
+## Session Documentation Protocol
+
+When conducting research or multi-step exploration:
+
+1. **Create session file EARLY** (not at the end):
+   - Primary location: `AI_Orchestrator/sessions/{repo}/active/{YYYYMMDD-HHMM}-{topic}.md`
+   - Repo options: `karematch`, `credentialmate`, `ai-orchestrator`, `cross-repo`
+   - Use template from `AI_Orchestrator/sessions/templates/session-template.md`
+
+2. **Write findings AS YOU GO**:
+   - Don't print walls of research text to terminal
+   - Write directly to the session file
+   - Update as you discover new information
+
+3. **Session file structure** (see AI_Orchestrator CLAUDE.md for full details):
+   - YAML front matter (required)
+   - Objective, Progress Log, Findings
+   - Files Changed, Issues Encountered
+   - Session Reflection (end of session)
+
+4. **SessionEnd hook** (auto-configured):
+   - Creates stub in AI_Orchestrator/sessions/{repo}/active/
+   - Triggered when session ends
+   - Configured in `.claude/settings.json`
+
+**Note**: Session storage is centralized in AI_Orchestrator (execution context), not MissionControl. MissionControl receives reviewed/closed sessions only.
+
+---
+
 ## Pre-Task Checklist
 
 Before any task in MissionControl:
