@@ -1,8 +1,8 @@
 # MissionControl Skill Registry
 
 **Authority**: MissionControl Governance
-**Version**: 1.0
-**Last Updated**: 2026-01-16
+**Version**: 1.1
+**Last Updated**: 2026-01-18
 
 ---
 
@@ -247,9 +247,37 @@ This registry defines skill SPECIFICATIONS - what each skill does, its constrain
 
 ---
 
-## 5. Infrastructure Skills (L3)
+## 5. Infrastructure Skills
 
-### start-local-dev
+### Session Infrastructure (L2)
+
+#### checkpoint-reminder
+**Purpose**: Prevent context loss by reminding Claude to checkpoint progress
+**Trigger**: Automatic after N file operations (threshold: 10-20)
+**Requirements**:
+- Track Write/Edit operation count
+- Display reminder banner at threshold
+- Auto-trigger state-sync when STATE.md modified
+- Reset counter after checkpoint complete
+**Implementations**: ai_orchestrator, karematch, credentialmate
+**Version**: v1.1 (2026-01-18)
+
+#### state-sync
+**Purpose**: Cross-repo memory synchronization
+**Trigger**: Manual (`python utils/state_sync.py sync <repo>`), Auto (via checkpoint hook)
+**Requirements**:
+- Sync STATE.md to other repos' .aibrain/global-state-cache.md
+- Support distributed architecture (no central registry)
+- Preserve section formatting in cache files
+- Update timestamps on sync
+**Implementations**: ai_orchestrator, karematch, credentialmate
+**Version**: v1.0 (2026-01-18)
+
+---
+
+### Development Environment (L3)
+
+#### start-local-dev
 **Purpose**: Start local development environment
 **Trigger**: "start dev", "spin up"
 **Requirements**:

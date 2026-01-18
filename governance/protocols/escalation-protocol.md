@@ -1,8 +1,8 @@
 # Escalation Protocol
 
 **Authority**: MissionControl Governance Protocol
-**Version**: 1.0
-**Last Updated**: 2026-01-16
+**Version**: 1.1
+**Last Updated**: 2026-01-18
 **Status**: MANDATORY
 
 ---
@@ -294,15 +294,162 @@ Problems:
 
 ---
 
+## Session Continuity During Escalation
+
+When agents escalate to human assistance, session context must be preserved to enable seamless resumption after resolution.
+
+### Pre-Escalation Checkpoint (REQUIRED)
+
+Before escalating to human, agent MUST:
+
+1. **Update STATE.md** with current progress:
+   ```markdown
+   **Last Action**: Escalated to human - [reason]
+   **Pending**: Waiting for [specific help needed]
+   **Alternatives Tried**: [brief summary]
+   ```
+
+2. **Create/Update Session File** with escalation context:
+   ```markdown
+   ## Escalation Point
+   **Time**: [timestamp]
+   **Reason**: [specific issue]
+   **Evidence Trail**: [link to evidence or inline summary]
+   **Resume Instructions**: [what to do after human resolves]
+   ```
+
+3. **Trigger State Sync** (automatic via checkpoint hook):
+   - STATE.md propagates to other repos' global-state-cache.md
+   - Enables cross-repo visibility of blocked work
+
+4. **Save Iteration State** to `.aibrain/agent-loop.local.md`:
+   - Current task ID
+   - Iteration count
+   - Escalation context
+   - Enables auto-resume after resolution
+
+### During Human Resolution
+
+While waiting for human response:
+
+- **Session Status**: PAUSED (documented in STATE.md)
+- **State Availability**: Other repos can see escalation via global-state-cache.md
+- **Work Continuity**: Other agents can continue on non-blocked tasks
+- **Context Preservation**: All escalation evidence persists in session file
+
+### Post-Resolution Resume
+
+After human provides solution:
+
+1. **Agent Resumes** from checkpoint:
+   - Reads STATE.md for last known state
+   - Loads session file for escalation context
+   - Applies human-provided solution
+   - Continues from interruption point
+
+2. **State Update** after resolution:
+   ```markdown
+   **Last Action**: Resolved escalation - [what human provided]
+   **Status**: Resumed work
+   **Next**: [what agent will do next]
+   ```
+
+3. **Completion Tracking**:
+   - Escalation resolut marked in session file
+   - Evidence of solution documented
+   - Iteration continues without context loss
+
+### Crash Recovery Integration
+
+If agent crashes during escalation:
+
+1. **Auto-Resume on Restart**:
+   - Reads `.aibrain/agent-loop.local.md`
+   - Detects escalation state
+   - Presents escalation context to human again
+   - Waits for resolution before continuing
+
+2. **No Context Loss**:
+   - All escalation evidence persisted
+   - Evidence trail remains intact
+   - Session can be resumed by different agent instance
+
+### Escalation Context Template
+
+```yaml
+escalation:
+  session_id: "20260118-1234"
+  timestamp: "2026-01-18T12:34:56Z"
+  agent_type: "bugfix"
+  task_id: "TASK-123"
+  status: "awaiting_human_response"
+
+  attempts:
+    - level: "L1"
+      approach: "[Direct execution attempt]"
+      result: "FAILED"
+      reason: "[Why it failed]"
+    - level: "L2"
+      approach: "[Delegated infrastructure]"
+      result: "FAILED"
+      reason: "[Why it failed]"
+    - level: "L3"
+      alternatives:
+        - "[Alternative 1]"
+        - "[Alternative 2]"
+        - "[Alternative 3]"
+      all_result: "FAILED"
+
+  human_request: "[Specific help needed]"
+
+  resume_instructions:
+    - "[Step 1 after human resolves]"
+    - "[Step 2 after resolution]"
+```
+
+### Checkpoint Reminder Integration
+
+The checkpoint reminder system automatically triggers state preservation during escalations:
+
+- **Pre-Escalation**: Reminder fires if STATE.md not updated
+- **During Wait**: No reminders (session paused)
+- **Post-Resolution**: Reminder resumes after first operation
+
+### Best Practices
+
+**DO**:
+- ✅ Update STATE.md before escalating
+- ✅ Document ALL evidence in session file
+- ✅ Provide clear resume instructions
+- ✅ Sync state to other repos (auto-triggered)
+- ✅ Verify session file is complete
+
+**DON'T**:
+- ❌ Escalate without checkpoint
+- ❌ Lose evidence trail across sessions
+- ❌ Skip resume instructions
+- ❌ Forget to update STATE.md after resolution
+- ❌ Leave escalation status incomplete
+
+### Related Skills
+
+- **checkpoint-reminder** (v1.1): Auto-triggers before escalation
+- **state-sync** (v1.0): Propagates escalation state across repos
+- **session-handoff** (planned): Formal handoff protocol for unresolved escalations
+
+---
+
 ## Integration with Other Protocols
 
 ### Handoff Protocol
 - Escalations that can't be resolved in session become handoff items
 - Document escalation context in handoff notes
+- Session continuity ensures context persists across handoff
 
 ### Parallel Execution Protocol
 - Multiple agents can escalate simultaneously
 - Human may need to prioritize responses
+- Cross-repo state sync enables visibility into all escalations
 
 ---
 
@@ -312,6 +459,7 @@ Problems:
 |-----------|--------|
 | 4-Level Hierarchy | Documented |
 | Evidence Trail Format | Documented |
+| Session Continuity | Documented + Infrastructure Ready |
 | Violation Detection Hook | Planned |
 | Automatic Suggestions | Planned |
 
@@ -322,3 +470,4 @@ Problems:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-16 | Initial protocol |
+| 1.1 | 2026-01-18 | Added session continuity during escalation |

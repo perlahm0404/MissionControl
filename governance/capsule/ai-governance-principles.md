@@ -1,8 +1,8 @@
 # AI Governance Principles
 
 **Authority**: MissionControl Constitutional Document
-**Version**: 1.0
-**Last Updated**: 2026-01-16
+**Version**: 1.1
+**Last Updated**: 2026-01-18
 
 ---
 
@@ -243,7 +243,90 @@ APPROVAL: Required before proceeding
 
 ---
 
-## 9. Constitutional Hierarchy
+## 9. Cross-Repo Memory Continuity (Session Preservation)
+
+Agents operating across multiple repositories must maintain session context to prevent context rot and enable autonomous operation.
+
+### Memory Infrastructure Requirements
+
+All execution repositories (repositories with autonomous agents) MUST implement:
+
+1. **STATE.md**: Current state of the repository (build status, active work, blockers)
+2. **DECISIONS.md**: Past architectural decisions with rationale
+3. **CATALOG.md**: Master documentation index for navigation
+4. **USER-PREFERENCES.md**: User's working preferences and communication style
+5. **Sessions directory**: Active and archived session handoff files
+6. **Checkpoint system**: Automated reminders to update state files
+7. **Auto-resume capability**: State persistence for crash recovery
+
+### Cross-Repo State Synchronization
+
+Execution repositories MUST support cross-repo state awareness:
+
+1. **Global State Cache**: `.aibrain/global-state-cache.md` caches STATE.md from other repos
+2. **State Sync Utility**: `utils/state_sync.py` propagates STATE.md updates
+3. **Automatic Sync**: Checkpoint hooks auto-trigger sync when STATE.md modified
+4. **Distributed Architecture**: No central registry; each repo self-contained
+
+### 10-Step Startup Protocol
+
+All agents MUST complete this protocol before executing tasks:
+
+1. Read CATALOG.md for documentation structure
+2. Read USER-PREFERENCES.md for user working preferences
+3. Read STATE.md for current state of this repo
+4. Read DECISIONS.md for past decisions in this repo
+5. Read latest session file (if exists) for handoff context
+6. **Read .aibrain/global-state-cache.md** for cross-repo state ⭐
+7. Read claude-progress.txt for recent accomplishments
+8. Read .claude/memory/hot-patterns.md for known issues
+9. Check git status for uncommitted work
+10. Review work queue for pending tasks
+
+### Repository Tiers
+
+| Tier | Type | Memory Infrastructure | Examples |
+|------|------|----------------------|----------|
+| **Execution** | Full agent autonomy | Complete (STATE, DECISIONS, CATALOG, sessions, checkpoints, auto-resume, state sync) | AI_Orchestrator, KareMatch, CredentialMate |
+| **Passive** | Data/documentation only | None (AI_Orchestrator executes work via work queues) | Mission Control, Knowledge Vault, YouTube-Process |
+
+### Session Crash Recovery
+
+1. **Checkpoint Reminders**: Auto-triggered after N file operations (10-20)
+2. **State Persistence**: `.aibrain/agent-loop.local.md` stores iteration state
+3. **Auto-Resume**: `autonomous_loop.py resume=True` resumes from last checkpoint
+4. **Progress Files**: `claude-progress.txt` tracks completed work
+
+### Forbidden Actions
+
+- ❌ Skipping startup protocol (causes context rot)
+- ❌ Modifying STATE.md in other repos (each repo manages its own)
+- ❌ Syncing to passive repos (they don't have STATE.md)
+- ❌ Disabling checkpoint hooks without approval
+- ❌ Creating sessions without documentation
+
+### Context Rot Prevention
+
+Session continuity prevents context rot through:
+
+1. **Externalized Memory**: All context in files, not in-memory
+2. **Periodic Checkpoints**: Forced documentation at thresholds
+3. **Cross-Repo Awareness**: Agents see work happening elsewhere
+4. **Session Handoffs**: Formal context transfer between sessions
+5. **Crash Recovery**: Resume from checkpoints, not from scratch
+
+### Enforcement Level
+
+**Advisory** (Infrastructure in place, enforcement via documentation)
+
+Skills implementing this principle:
+- `checkpoint-reminder` (v1.1) - Session checkpointing
+- `state-sync` (v1.0) - Cross-repo synchronization
+- `session-handoff` (planned) - Formal handoff protocol
+
+---
+
+## 10. Constitutional Hierarchy
 
 When rules conflict, this hierarchy applies:
 
@@ -264,7 +347,7 @@ Example:
 
 ---
 
-## 10. Enforcement Status
+## 11. Enforcement Status
 
 | Principle | Enforcement Level |
 |-----------|-------------------|
@@ -275,6 +358,9 @@ Example:
 | Human-in-the-Loop Gates | Enforced (skill workflows) |
 | Secrets Policy | Enforced (pre-commit hooks) |
 | Protected Files | Advisory (documented in repos) |
+| Governance Philosophy | Advisory (documentation) |
+| Cross-Repo Memory Continuity | Advisory (infrastructure in place) |
+| Constitutional Hierarchy | Enforced (by design) |
 
 ---
 
@@ -283,3 +369,4 @@ Example:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-16 | Initial constitutional document |
+| 1.1 | 2026-01-18 | Added Principle #9: Cross-Repo Memory Continuity |
